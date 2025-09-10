@@ -84,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // showResults() - Displays the end view and the quiz results
 
   function showQuestion() {
-    // If the quiz has ended, show the results
     if (quiz.hasEnded()) {
       showResults();
       return;
@@ -100,25 +99,54 @@ document.addEventListener("DOMContentLoaded", () => {
     question.shuffleChoices();
 
     // YOUR CODE HERE:
-    //
+
     // 1. Show the question
     // Update the inner text of the question container element and show the question text
-
+    questionContainer.innerText = question.text;
     // 2. Update the green progress bar
     // Update the green progress bar (div#progressBar) width so that it shows the percentage of questions answered
+    const perc = (quiz.currentQuestionIndex / quiz.questions.length) * 100;
+    progressBar.style.width = `${perc}%`; // This value is hardcoded as a placeholder
 
-    progressBar.style.width = `65%`; // This value is hardcoded as a placeholder
+    // questionIndex (current question) / question.length 1 / 10 10% 2/10 20%
 
     // 3. Update the question count text
     // Update the question count (div#questionCount) show the current question out of total questions
 
-    questionCount.innerText = `Question 1 of 10`; //  This value is hardcoded as a placeholder
+    questionCount.innerText = `${quiz.currentQuestionIndex} of ${quiz.questions.length} `; //  This value is hardcoded as a placeholder
 
     // 4. Create and display new radio input element with a label for each choice.
-    // Loop through the current question `choices`.
+    //
     // For each choice create a new radio input with a label, and append it to the choice container.
     // Each choice should be displayed as a radio input element with a label:
+
+    for (let i = 0; i < question.choices.length; i++) {
+      const choices = question.choices[i];
+      const choiceContainer = document.querySelector("#choices");
+
+      let label = document.createElement("label");
+
+      let radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "choices";
+      radio.value = choices;
+
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(choices));
+
+      choiceContainer.appendChild(label);
+      choiceContainer.appendChild(document.createElement("br"));
+    }
+
     /* 
+   
+
+
+    // quiz.questions.choices
+    
+    .content.style.input type="radio" name= "choice1" value = `${quiz.choices[i]}`
+
+
           <input type="radio" name="choice" value="CHOICE TEXT HERE">
           <label>CHOICE TEXT HERE</label>
         <br>
