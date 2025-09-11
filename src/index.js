@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const questionContainer = document.querySelector("#question");
   const choiceContainer = document.querySelector("#choices");
   const nextButton = document.querySelector("#nextButton");
-
+  const resetBtn = document.querySelector("#restartButton");
   // End view elements
   const resultContainer = document.querySelector("#result");
 
@@ -43,6 +43,19 @@ document.addEventListener("DOMContentLoaded", () => {
       "E = mc^2",
       3
     ),
+    new Question(
+      "Where is Joshua currently located?",
+      ["USA", "America", "Texas", "Conroe", "Joshualand", "Emidio's basement"],
+      "Emidio's basement",
+      4
+    ),
+
+    new Question(
+      "Whats Joshua Favorite Food?",
+      ["Sushi", "Pizza", "Tacos", "Raising Canes"],
+      "Raising Canes",
+      4
+    ),
     // Add more questions here
   ];
   const quizDuration = 120; // 120 seconds (2 minutes)
@@ -70,8 +83,22 @@ document.addEventListener("DOMContentLoaded", () => {
   showQuestion();
 
   /************  TIMER  ************/
+  timer = setInterval(() => {
+    quiz.timeRemaining--;
 
-  let timer;
+    const minutes = Math.floor(quiz.timeRemaining / 60)
+      .toString()
+      .padStart(2, "0");
+    const seconds = (quiz.timeRemaining % 60).toString().padStart(2, "0");
+
+    const timeRemainingContainer = document.getElementById("timeRemaining");
+    timeRemainingContainer.innerText = `${minutes}:${seconds}`;
+
+    if (quiz.timeRemaining <= 0) {
+      clearInterval(timer);
+      showResults();
+    }
+  }, 1000);
 
   /************  EVENT LISTENERS  ************/
 
@@ -137,46 +164,25 @@ document.addEventListener("DOMContentLoaded", () => {
       choiceContainer.appendChild(label);
       choiceContainer.appendChild(document.createElement("br"));
     }
-
-    /* 
-   
-
-
-    // quiz.questions.choices
-    
-    .content.style.input type="radio" name= "choice1" value = `${quiz.choices[i]}`
-
-
-          <input type="radio" name="choice" value="CHOICE TEXT HERE">
-          <label>CHOICE TEXT HERE</label>
-        <br>
-      */
-    // Hint 1: You can use the `document.createElement()` method to create a new element.
-    // Hint 2: You can use the `element.type`, `element.name`, and `element.value` properties to set the type, name, and value of an element.
-    // Hint 3: You can use the `element.appendChild()` method to append an element to the choices container.
-    // Hint 4: You can use the `element.innerText` property to set the inner text of an element.
   }
 
   function nextButtonHandler() {
-    let selectedAnswer; // A variable to store the selected answer value
+    const getChoices = document.querySelectorAll('input[name="choices"]');
+    let selectedAnswer = null;
 
-    // YOUR CODE HERE:
-    //
-    // 1. Get all the choice elements. You can use the `document.querySelectorAll()` method.
-
-    // 2. Loop through all the choice elements and check which one is selected
-    // Hint: Radio input elements have a property `.checked` (e.g., `element.checked`).
-    //  When a radio input gets selected the `.checked` property will be set to true.
-    //  You can use check which choice was selected by checking if the `.checked` property is true.
-
-    // 3. If an answer is selected (`selectedAnswer`), check if it is correct and move to the next question
-    // Check if selected answer is correct by calling the quiz method `checkAnswer()` with the selected answer.
-    // Move to the next question by calling the quiz method `moveToNextQuestion()`.
-    // Show the next question by calling the function `showQuestion()`.
+    getChoices.forEach((choice) => {
+      if (choice.checked) {
+        selectedAnswer = choice.value;
+      }
+    });
+    if (selectedAnswer !== null) {
+      quiz.checkAnswer(selectedAnswer);
+      quiz.moveToNextQuestion();
+      showQuestion();
+    }
   }
 
   function showResults() {
-    // YOUR CODE HERE:
     //
     // 1. Hide the quiz view (div#quizView)
     quizView.style.display = "none";
@@ -185,6 +191,34 @@ document.addEventListener("DOMContentLoaded", () => {
     endView.style.display = "flex";
 
     // 3. Update the result container (div#result) inner text to show the number of correct answers out of total questions
-    resultContainer.innerText = `You scored 1 out of 1 correct answers!`; // This value is hardcoded as a placeholder
+    resultContainer.innerText = `You scored ${quiz.correctAnswers} out of ${quiz.questions.length} correct answers!`; // This value is hardcoded as a placeholder
   }
+
+  resetBtn.addEventListener("click", () => {
+    quiz.correctAnswers = 0;
+    quiz.currentQuestionIndex = 0;
+    clearInterval(timer);
+    quiz.timeRemaining = quiz.timeLimit;
+
+    timer = setInterval(() => {
+      quiz.timeRemaining--;
+
+      const minutes = Math.floor(quiz.timeRemaining / 60)
+        .toString()
+        .padStart(2, "0");
+      const seconds = (quiz.timeRemaining % 60).toString().padStart(2, "0");
+
+      const timeRemainingContainer = document.getElementById("timeRemaining");
+      timeRemainingContainer.innerText = `${minutes}:${seconds}`;
+
+      if (quiz.timeRemaining <= 0) {
+        clearInterval(timer);
+        showResults();
+      }
+    }, 1000);
+
+    quizView.style.display = "flex";
+    endView.style.display = "none";
+    showQuestion();
+  });
 });
